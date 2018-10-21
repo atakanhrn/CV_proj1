@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
+from PyQt5 import QtGui
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,26 +18,54 @@ import cv2
 ########################################
 
 class App(QMainWindow):
+
     def __init__(self):
+
         super(App, self).__init__()
-        return NotImplementedError
+
+        #return NotImplementedError
 
 
         self.title = 'Histogram Equalization'
+
         # You can define other things in here
         self.initUI()
 
     def openInputImage(self):
         # This function is called when the user clicks File->Input Image.
-        return NotImplementedError
+   
+        #for g in range(256):
+
+        #return NotImplementedError
 
     def openTargetImage(self):
         # This function is called when the user clicks File->Target Image.
-        return NotImplementedError
+        
 
     def initUI(self):
-        return NotImplementedError
+        #return NotImplementedError
         # Write GUI initialization code
+        #self.setWindowTitle(self.title)
+        #self.setAccessibleName("main window")
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('File')
+        openInput = QAction('Open Input', self)
+        openTarget = QAction('Open Target', self)
+        exit = QAction('Exit', self)
+        exit.setShortcut('Ctrl+Q')
+        fileMenu.addAction(openInput)
+        fileMenu.addAction(openTarget)
+        fileMenu.addAction(exit)
+
+        self.toolbar = self.addToolBar('Equalize Histogram')
+        equalize = QAction('Equalize Histogram', self)
+        self.toolbar.addAction(equalize)
+
+        openInput.triggered.connect(self.openInputImage)
+        openTarget.triggered.connect(self.openTargetImage)
+        #exit.triggered.connect(app.exit())
+        equalize.triggered.connect(self.histogramButtonClicked)
+
 
         self.show()
 
@@ -53,16 +82,17 @@ class App(QMainWindow):
 
     def calcHistogram(self, I):
         # Calculate histogram
-        return NotImplementedError
+       
 
 class PlotCanvas(FigureCanvas):
     def __init__(self, hist, parent=None, width=5, height=4, dpi=100):
-        return NotImplementedError
+        #return NotImplementedError
         # Init Canvas
+        
         self.plotHistogram(hist)
 
     def plotHistogram(self, hist):
-        return NotImplementedError
+        #return NotImplementedError
         # Plot histogram
 
         self.draw()
@@ -71,4 +101,5 @@ class PlotCanvas(FigureCanvas):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
+    ex.setAccessibleName("main window")
     sys.exit(app.exec_())
