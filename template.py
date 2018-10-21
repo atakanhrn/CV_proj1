@@ -56,7 +56,7 @@ class App(QMainWindow):
         self.show()
         hist = self.calcHistogram(self.inputImage)
 
-        print(hist)
+        #print(hist)
         #index = np.arange(len(hist))
         #plt.bar(index, hist)
         #plt.show()
@@ -82,8 +82,7 @@ class App(QMainWindow):
         # This function is called when the user clicks File->Target Image.
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;Python Files (*.py)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self,options = options)
         if fileName:
             print(fileName)
 
@@ -104,9 +103,9 @@ class App(QMainWindow):
 
         self.show()
 
-        hist = self.calcHistogram(self.targetImage)
+        #hist = self.calcHistogram(self.targetImage)
 
-        print(hist)
+        #print(hist)
         #index = np.arange(len(hist))
         #plt.bar(index, hist)
         #plt.show()
@@ -163,38 +162,102 @@ class App(QMainWindow):
         #elif not self.targetLoaded:
             # Error: "Load target image" in MessageBox
          #   return NotImplementedError
-        #construct PDF
-        self.createCDF(self.inputImage)
-        self.createCDF(self.targetImage)
-
         #construct CDF
-        #construct LUT
 
-    def createCDF(self, image):
-        hist = self.calcHistogram(image)
-        imagePdf = self.getPdfFromHist(hist)
+        R, C, B = self.inputImage.shape
+        K = np.zeros((R, C, B))
+        inputCDF = self.createCDF(self.inputImage, 0)
+        targetCDF = self.createCDF(self.targetImage, 0)
+        inputCDF1 = self.createCDF(self.inputImage, 1)
+        targetCDF1 = self.createCDF(self.targetImage, 1)
+        inputCDF2 = self.createCDF(self.inputImage, 2)
+        targetCDF2 = self.createCDF(self.targetImage, 2)
+
+        #construct LUT
+        LUT = self.createLUT(inputCDF,targetCDF)
+        LUT1 = self.createLUT(inputCDF1,targetCDF2)
+        LUT2 = self.createLUT(inputCDF1,targetCDF2)
+
+        print(LUT)
+        for row in range(R):
+            for column in range(C):
+                self.inputImage[row][column][0] = LUT[self.inputImage[row][column][0]]
+                self.inputImage[row][column][1] = LUT1[self.inputImage[row][column][1]]
+                self.inputImage[row][column][2] = LUT2[self.inputImage[row][column][2]]
+        K = self.inputImage
+        his = self.calcHistogram(K, 0)
+        his1 = self.calcHistogram(K, 1)
+        his2 = self.calcHistogram(K, 2)
+        #K = np.uint8(LUT[self.inputImage])
+        #his = K
+
+        #his = self.calcHistogram(K)
+
+        index = np.arange(len(his))
+        plt.bar(index, his)
+        plt.show()
+        index = np.arange(len(his1))
+        plt.bar(index, his1)
+        plt.show()
+        index = np.arange(len(his2))
+        plt.bar(index, his2)
+        plt.show()
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", options=options)
+        print(fileName)
+        lay = QVBoxLayout()
+        newImage = cv2.imwrite(fileName+".png", K)
+        label = QLabel(self)
+        pixmap = QPixmap(fileName)
+        label.setPixmap(pixmap)
+        label.resize(pixmap.width(), pixmap.height())
+        label.move(1500, 500)
+        lay.addWidget(label)
+        lay.addStretch()
+
+        # self.setGeometry(300, 300, 250, 150)
+        label.show()
+
+        self.show()
+        #K = np.uint8(LUT[np.int(self.inputImage)])
+
+    def createLUT(self,inputCDF, targetCDF):
+        LUT = np.zeros((256, 1))
+        j = 0
+        for i in range(len(inputCDF)):
+            while(inputCDF[i]>targetCDF[j] and j<len(targetCDF)-1):
+                j = j + 1
+            LUT[i] = j
+        return LUT
+
+    def createCDF(self, image, color):
+        hist = self.calcHistogram(image, color)
+        imageCDF = self.getPdfFromHist(hist)
         sum = 0
         for i in range(len(hist)):
-            sum = sum + imagePdf[i]
-            imagePdf[i] = sum
-        index = np.arange(len(imagePdf))
-        plt.bar(index, imagePdf)
+            sum = sum + imageCDF[i]
+            imageCDF[i] = sum
+
+        return imageCDF
+        #index = np.arange(len(imagePdf))
+        #plt.bar(index, imagePdf)
         # plt.legend(loc='upper right')
-        plt.show()
+        #plt.show()
     def getPdfFromHist(self, hist):
         sum = hist.sum()
         for i in range(len(hist)):
             hist[i] = hist[i]/sum
         return hist
-    def calcHistogram(self, I):
+    def calcHistogram(self, I, color):
         # Calculate histogram
-        R, C, B = I.shape
+        R,C,B= I.shape
         # allocate the histogram
         hist = np.zeros([256])
         # range through the intensity values
         for row in range(R):
             for column in range(C):
-                hist[I[row,column,2]] = hist[I[row,column,2]] + 1
+                hist[I[row,column,color]] = hist[I[row,column,color]] + 1
 
         return hist
 
