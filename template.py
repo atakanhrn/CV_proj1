@@ -33,14 +33,69 @@ class App(QMainWindow):
 
     def openInputImage(self):
         # This function is called when the user clicks File->Input Image.
-   
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)", options=options)
+        if fileName:
+            print(fileName)
+
+        inputImage = cv2.imread(fileName,cv2.IMREAD_COLOR)
+        #cv2.namedWindow("main window")
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        lay = QVBoxLayout(self.central_widget)
+
+        label = QLabel(self)
+        pixmap = QPixmap(fileName)
+        label.setPixmap(pixmap)
+        self.resize(pixmap.width(), pixmap.height())
+
+        lay.addWidget(label)
+        self.show()
+
+
+
+
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        histogram_red = np.zeros([256,1], dtype=np.uint8)
+        histogram_green = np.zeros([256, 1], dtype=np.uint8)
+        histogram_blue = np.zeros([256, 1], dtype=np.uint8)
+
+        return inputImage
         #for g in range(256):
 
         #return NotImplementedError
 
     def openTargetImage(self):
         # This function is called when the user clicks File->Target Image.
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)", options=options)
+        if fileName:
+            print(fileName)
+
+        inputImage = cv2.imread(fileName, cv2.IMREAD_COLOR)
+        # cv2.namedWindow("main window")
+        lay = QVBoxLayout()
+
+        label = QLabel(self)
+        pixmap = QPixmap(fileName)
+        label.setPixmap(pixmap)
+        label.resize(pixmap.width(), pixmap.height())
+        label.move(1000,500)
+        lay.addWidget(label)
+        lay.addStretch()
+
+        #self.setGeometry(300, 300, 250, 150)
+        label.show()
+
+        self.show()
         
+
+        return inputImage
 
     def initUI(self):
         #return NotImplementedError
@@ -82,13 +137,11 @@ class App(QMainWindow):
 
     def calcHistogram(self, I):
         # Calculate histogram
-       
+
+        return hist
 
 class PlotCanvas(FigureCanvas):
     def __init__(self, hist, parent=None, width=5, height=4, dpi=100):
-        #return NotImplementedError
-        # Init Canvas
-        
         self.plotHistogram(hist)
 
     def plotHistogram(self, hist):
