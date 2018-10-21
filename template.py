@@ -144,9 +144,6 @@ class App(QMainWindow):
 
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
-        histogram_red = np.zeros([256,1], dtype=np.uint8)
-        histogram_green = np.zeros([256, 1], dtype=np.uint8)
-        histogram_blue = np.zeros([256, 1], dtype=np.uint8)
 
 
         #for g in range(256):
