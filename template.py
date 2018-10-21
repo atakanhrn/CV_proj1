@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, \
-    QPushButton, QGroupBox, QAction, QFileDialog
+    QPushButton, QGroupBox, QAction, QFileDialog, QHBoxLayout, QTabWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
@@ -20,17 +20,65 @@ import cv2
 class App(QMainWindow):
     inputImage = np.uint8
     targetImage = np.uint8
+    box2 = QGroupBox
+    box1 = QGroupBox
+    box3 = QGroupBox
+    box4 = QGroupBox
+    box5 = QGroupBox
+    box6 = QGroupBox
+    ver_lay = QVBoxLayout
+    ver_lay2 = QVBoxLayout
+    ver_lay3 = QVBoxLayout
     def __init__(self):
-
-        super(App, self).__init__()
-
-        #return NotImplementedError
-
-
-        self.title = 'Histogram Equalization'
-
-        # You can define other things in here
+        QMainWindow.__init__(self)
+        self.setup_main_window()
+        self.set_window_layout()
         self.initUI()
+    def setup_main_window(self):
+        self.centralwidget = QWidget()
+        self.setCentralWidget(self.centralwidget)
+        #self.resize(800, 600)
+        self.setWindowTitle("Equalize histogram")
+
+    def set_window_layout(self):
+        self.startSimulationButton = QPushButton('Start Simulation')
+
+        self.horizontalLayout = QHBoxLayout(self.centralwidget)
+        self.box1 = QGroupBox("Input")
+        self.box2 = QGroupBox("Input Hist")
+        self.box3 = QGroupBox("Target")
+        self.box4 = QGroupBox("Target Hist")
+        self.box5 = QGroupBox("Output")
+        self.box6 = QGroupBox("Output Hist")
+        self.ver_lay = QVBoxLayout()
+        self.ver_lay2 = QVBoxLayout()
+        self.ver_lay3 = QVBoxLayout()
+        self.ver_lay.addWidget(self.box1)
+        self.ver_lay.addWidget(self.box2)
+        self.horizontalLayout.addLayout(self.ver_lay)
+        self.ver_lay2.addWidget(self.box3)
+        self.ver_lay2.addWidget(self.box4)
+        self.horizontalLayout.addLayout(self.ver_lay2)
+        self.ver_lay3.addWidget(self.box5)
+        self.ver_lay3.addWidget(self.box6)
+        self.horizontalLayout.addLayout(self.ver_lay3)
+        #self.horizontalLayout.addWidget(self.box1)
+        layout = QHBoxLayout()
+        self.box1.setLayout(layout)
+        layout2 = QHBoxLayout()
+        self.box2.setLayout(layout2)
+        layout3 = QHBoxLayout()
+        self.box3.setLayout(layout3)
+        layout4 = QHBoxLayout()
+        self.box4.setLayout(layout4)
+        layout5 = QHBoxLayout()
+        self.box5.setLayout(layout5)
+        layout6 = QHBoxLayout()
+        self.box6.setLayout(layout6)
+        #self.main_vertical_layout = QVBoxLayout()
+        #self.box2.setLayout(self.main_vertical_layout)
+        #self.main_vertical_layout.addStretch(1)
+        #self.box1.layout().addStretch(1)
 
     def openInputImage(self):
         # This function is called when the user clicks File->Input Image.
@@ -43,19 +91,46 @@ class App(QMainWindow):
 
         self.inputImage = cv2.imread(fileName,cv2.IMREAD_COLOR)
         #cv2.namedWindow("main window")
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        lay = QVBoxLayout(self.central_widget)
+        #lay = QVBoxLayout()
 
         label = QLabel(self)
         pixmap = QPixmap(fileName)
         label.setPixmap(pixmap)
-        self.resize(pixmap.width(), pixmap.height())
+        label.resize(pixmap.width(), pixmap.height())
+        label.move(20, 20)
+        #lay.addWidget(label)
+        #lay.addStretch()
 
-        lay.addWidget(label)
+        # self.setGeometry(300, 300, 250, 150)
+        #label.show()
+        fig = plt.figure(figsize=(5,5))
+        self.box1.layout().addWidget(label)
         self.show()
-        hist = self.calcHistogram(self.inputImage)
-
+        hist = self.calcHistogram(self.inputImage,0)
+        hist1 = self.calcHistogram(self.inputImage,1)
+        hist2 = self.calcHistogram(self.inputImage,2)
+        index = np.arange(len(hist))
+        a = fig.add_subplot(311)
+        a.bar(index, hist)
+        canvas = FigureCanvas(fig)
+        #canvas.resize(50,25)
+        self.box2.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist1))
+        b = fig.add_subplot(312)
+        b.bar(index, hist1)
+        #canvas = FigureCanvas(fig)
+        #canvas.resize(100,50)
+        self.box2.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist2))
+        c = fig.add_subplot(313)
+        c.bar(index, hist2)
+        #canvas = FigureCanvas(fig)
+        #canvas.resize(100,50)
+        self.box2.layout().addWidget(canvas)
+        #fig.tight_layout()
+        canvas.show()
         #print(hist)
         #index = np.arange(len(hist))
         #plt.bar(index, hist)
@@ -88,44 +163,65 @@ class App(QMainWindow):
 
         self.targetImage = cv2.imread(fileName, cv2.IMREAD_COLOR)
         # cv2.namedWindow("main window")
-        lay = QVBoxLayout()
+        # lay = QVBoxLayout()
 
         label = QLabel(self)
         pixmap = QPixmap(fileName)
         label.setPixmap(pixmap)
         label.resize(pixmap.width(), pixmap.height())
-        label.move(1000,500)
-        lay.addWidget(label)
-        lay.addStretch()
+        label.move(20, 20)
+        # lay.addWidget(label)
+        # lay.addStretch()
 
-        #self.setGeometry(300, 300, 250, 150)
-        label.show()
-
+        # self.setGeometry(300, 300, 250, 150)
+        # label.show()
+        fig = plt.figure(figsize=(5, 5))
+        self.box3.layout().addWidget(label)
         self.show()
-
-        #hist = self.calcHistogram(self.targetImage)
-
-        #print(hist)
-        #index = np.arange(len(hist))
-        #plt.bar(index, hist)
-        #plt.show()
-
+        hist = self.calcHistogram(self.inputImage, 0)
+        hist1 = self.calcHistogram(self.inputImage, 1)
+        hist2 = self.calcHistogram(self.inputImage, 2)
+        index = np.arange(len(hist))
+        a = fig.add_subplot(311)
+        a.bar(index, hist)
+        canvas = FigureCanvas(fig)
+        # canvas.resize(50,25)
+        self.box4.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist1))
+        b = fig.add_subplot(312)
+        b.bar(index, hist1)
+        # canvas = FigureCanvas(fig)
+        # canvas.resize(100,50)
+        self.box4.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist2))
+        c = fig.add_subplot(313)
+        c.bar(index, hist2)
+        # canvas = FigureCanvas(fig)
+        # canvas.resize(100,50)
+        self.box4.layout().addWidget(canvas)
+        # fig.tight_layout()
+        canvas.show()
+        # print(hist)
+        # index = np.arange(len(hist))
+        # plt.bar(index, hist)
+        # plt.show()
 
         # plt.legend(loc='upper right')
 
-        #red_hist = hist[:, 0, 1]
-        #plotCanvas = PlotCanvas(hist)
-        #plotCanvas = PlotCanvas(hist)
-        #plotCanvas.plotHistogram(hist)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        #histogram_red = np.zeros([256, 1], dtype=np.uint8)
-        #histogram_green = np.zeros([256, 1], dtype=np.uint8)
-        #histogram_blue = np.zeros([256, 1], dtype=np.uint8)
 
-        #return targetImage
+        # for g in range(256):
+
+        # return NotImplementedError
 
     def initUI(self):
+        #self.setWindowTitle(self.title)
+        #self.setGeometry(self.left, self.top, self.width, self.height)
+
+        #self.createGridLayout()
         #return NotImplementedError
         # Write GUI initialization code
         #self.setWindowTitle(self.title)
@@ -150,7 +246,12 @@ class App(QMainWindow):
         equalize.triggered.connect(self.histogramButtonClicked)
 
 
+
+        #self.setLayout(windowLayout)
+
+
         self.show()
+
 
     def histogramButtonClicked(self):
         #if not self.inputLoaded and not self.targetLoaded:
@@ -175,8 +276,8 @@ class App(QMainWindow):
 
         #construct LUT
         LUT = self.createLUT(inputCDF,targetCDF)
-        LUT1 = self.createLUT(inputCDF1,targetCDF2)
-        LUT2 = self.createLUT(inputCDF1,targetCDF2)
+        LUT1 = self.createLUT(inputCDF1,targetCDF1)
+        LUT2 = self.createLUT(inputCDF2,targetCDF2)
 
         print(LUT)
         for row in range(R):
@@ -185,43 +286,76 @@ class App(QMainWindow):
                 self.inputImage[row][column][1] = LUT1[self.inputImage[row][column][1]]
                 self.inputImage[row][column][2] = LUT2[self.inputImage[row][column][2]]
         K = self.inputImage
-        his = self.calcHistogram(K, 0)
-        his1 = self.calcHistogram(K, 1)
-        his2 = self.calcHistogram(K, 2)
+        hist = self.calcHistogram(K, 0)
+        hist1 = self.calcHistogram(K, 1)
+        hist2 = self.calcHistogram(K, 2)
         #K = np.uint8(LUT[self.inputImage])
         #his = K
 
         #his = self.calcHistogram(K)
 
-        index = np.arange(len(his))
-        plt.bar(index, his)
-        plt.show()
-        index = np.arange(len(his1))
-        plt.bar(index, his1)
-        plt.show()
-        index = np.arange(len(his2))
-        plt.bar(index, his2)
-        plt.show()
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", options=options)
+        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()" + ".png", options=options)
+        cv2.imwrite(fileName, K)
         print(fileName)
-        lay = QVBoxLayout()
-        newImage = cv2.imwrite(fileName+".png", K)
+
+        fig = plt.figure(figsize=(5,5))
+
+        # lay = QVBoxLayout()
+
         label = QLabel(self)
         pixmap = QPixmap(fileName)
         label.setPixmap(pixmap)
         label.resize(pixmap.width(), pixmap.height())
-        label.move(1500, 500)
-        lay.addWidget(label)
-        lay.addStretch()
+        label.move(20, 20)
+        # lay.addWidget(label)
+        # lay.addStretch()
 
         # self.setGeometry(300, 300, 250, 150)
-        label.show()
-
+        # label.show()
+        fig = plt.figure(figsize=(5, 5))
+        self.box5.layout().addWidget(label)
         self.show()
-        #K = np.uint8(LUT[np.int(self.inputImage)])
+        hist = self.calcHistogram(self.inputImage, 0)
+        hist1 = self.calcHistogram(self.inputImage, 1)
+        hist2 = self.calcHistogram(self.inputImage, 2)
+        index = np.arange(len(hist))
+        a = fig.add_subplot(311)
+        a.bar(index, hist)
+        canvas = FigureCanvas(fig)
+        # canvas.resize(50,25)
+        self.box6.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist1))
+        b = fig.add_subplot(312)
+        b.bar(index, hist1)
+        # canvas = FigureCanvas(fig)
+        # canvas.resize(100,50)
+        self.box6.layout().addWidget(canvas)
+        canvas.show()
+        index = np.arange(len(hist2))
+        c = fig.add_subplot(313)
+        c.bar(index, hist2)
+        # canvas = FigureCanvas(fig)
+        # canvas.resize(100,50)
+        self.box6.layout().addWidget(canvas)
+        # fig.tight_layout()
+        canvas.show()
+        # print(hist)
+        # index = np.arange(len(hist))
+        # plt.bar(index, hist)
+        # plt.show()
 
+        # plt.legend(loc='upper right')
+
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
+        # for g in range(256):
+
+        # return NotImplementedError
     def createLUT(self,inputCDF, targetCDF):
         LUT = np.zeros((256, 1))
         j = 0
@@ -266,18 +400,26 @@ class PlotCanvas(FigureCanvas):
     def __init__(self, hist, parent=None, width=5, height=4, dpi=100):
         #return NotImplementedError
         # Init Canvas
-        super(PlotCanvas,self).__init__()
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
         #fig = plt.hist(hist)
         #FigureCanvas.__init__(self)
         #FigureCanvas.__init__(self, self.figure)
+
         self.plotHistogram(hist)
 
     def plotHistogram(self, hist):
         #return NotImplementedError
         # Plot histogram
         print(hist)
-        #index = np.arange(len(hist))
-        #plt.bar(index, hist)
+        ax = self.figure.add_subplot(111)
+
+        index = np.arange(len(hist))
+        ax.bar(index,hist)
+
+        #self.figure=plt.bar(index, hist)
         # plt.legend(loc='upper right')
         #plt.show()
         self.draw()
