@@ -18,7 +18,8 @@ import cv2
 ########################################
 
 class App(QMainWindow):
-
+    inputImage = np.uint8
+    targetImage = np.uint8
     def __init__(self):
 
         super(App, self).__init__()
@@ -40,7 +41,7 @@ class App(QMainWindow):
         if fileName:
             print(fileName)
 
-        inputImage = cv2.imread(fileName,cv2.IMREAD_COLOR)
+        self.inputImage = cv2.imread(fileName,cv2.IMREAD_COLOR)
         #cv2.namedWindow("main window")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -53,6 +54,15 @@ class App(QMainWindow):
 
         lay.addWidget(label)
         self.show()
+        hist = self.calcHistogram(self.inputImage)
+
+        print(hist)
+        #index = np.arange(len(hist))
+        #plt.bar(index, hist)
+        #plt.show()
+
+
+        # plt.legend(loc='upper right')
 
 
 
@@ -63,7 +73,7 @@ class App(QMainWindow):
         histogram_green = np.zeros([256, 1], dtype=np.uint8)
         histogram_blue = np.zeros([256, 1], dtype=np.uint8)
 
-        return inputImage
+
         #for g in range(256):
 
         #return NotImplementedError
@@ -77,7 +87,7 @@ class App(QMainWindow):
         if fileName:
             print(fileName)
 
-        inputImage = cv2.imread(fileName, cv2.IMREAD_COLOR)
+        self.targetImage = cv2.imread(fileName, cv2.IMREAD_COLOR)
         # cv2.namedWindow("main window")
         lay = QVBoxLayout()
 
@@ -93,10 +103,19 @@ class App(QMainWindow):
         label.show()
 
         self.show()
-        hist = self.calcHistogram(inputImage)
+
+        hist = self.calcHistogram(self.targetImage)
+
+        print(hist)
+        #index = np.arange(len(hist))
+        #plt.bar(index, hist)
+        #plt.show()
+
+
+        # plt.legend(loc='upper right')
 
         #red_hist = hist[:, 0, 1]
-        plotCanvas = PlotCanvas(hist)
+        #plotCanvas = PlotCanvas(hist)
         #plotCanvas = PlotCanvas(hist)
         #plotCanvas.plotHistogram(hist)
         # cv2.waitKey(0)
@@ -105,7 +124,7 @@ class App(QMainWindow):
         #histogram_green = np.zeros([256, 1], dtype=np.uint8)
         #histogram_blue = np.zeros([256, 1], dtype=np.uint8)
 
-        return inputImage
+        #return targetImage
 
     def initUI(self):
         #return NotImplementedError
@@ -135,16 +154,38 @@ class App(QMainWindow):
         self.show()
 
     def histogramButtonClicked(self):
-        if not self.inputLoaded and not self.targetLoaded:
+        #if not self.inputLoaded and not self.targetLoaded:
             # Error: "First load input and target images" in MessageBox
-            return NotImplementedError
-        if not self.inputLoaded:
+         #   return NotImplementedError
+        #if not self.inputLoaded:
             # Error: "Load input image" in MessageBox
-            return NotImplementedError
-        elif not self.targetLoaded:
+         #   return NotImplementedError
+        #elif not self.targetLoaded:
             # Error: "Load target image" in MessageBox
-            return NotImplementedError
+         #   return NotImplementedError
+        #construct PDF
+        self.createCDF(self.inputImage)
+        self.createCDF(self.targetImage)
 
+        #construct CDF
+        #construct LUT
+
+    def createCDF(self, image):
+        hist = self.calcHistogram(image)
+        imagePdf = self.getPdfFromHist(hist)
+        sum = 0
+        for i in range(len(hist)):
+            sum = sum + imagePdf[i]
+            imagePdf[i] = sum
+        index = np.arange(len(imagePdf))
+        plt.bar(index, imagePdf)
+        # plt.legend(loc='upper right')
+        plt.show()
+    def getPdfFromHist(self, hist):
+        sum = hist.sum()
+        for i in range(len(hist)):
+            hist[i] = hist[i]/sum
+        return hist
     def calcHistogram(self, I):
         # Calculate histogram
         R, C, B = I.shape
@@ -172,8 +213,8 @@ class PlotCanvas(FigureCanvas):
         #return NotImplementedError
         # Plot histogram
         print(hist)
-        index = np.arange(len(hist))
-        plt.bar(index, hist)
+        #index = np.arange(len(hist))
+        #plt.bar(index, hist)
         # plt.legend(loc='upper right')
         #plt.show()
         self.draw()
