@@ -106,9 +106,9 @@ class App(QMainWindow):
         fig = plt.figure(figsize=(5,5))
         self.box1.layout().addWidget(label)
         self.show()
-        hist = self.calcHistogram(self.inputImage,0)
+        hist = self.calcHistogram(self.inputImage,2)
         hist1 = self.calcHistogram(self.inputImage,1)
-        hist2 = self.calcHistogram(self.inputImage,2)
+        hist2 = self.calcHistogram(self.inputImage,0)
         index = np.arange(len(hist))
         a = fig.add_subplot(311)
         a.bar(index, hist)
@@ -178,9 +178,9 @@ class App(QMainWindow):
         fig = plt.figure(figsize=(5, 5))
         self.box3.layout().addWidget(label)
         self.show()
-        hist = self.calcHistogram(self.inputImage, 0)
-        hist1 = self.calcHistogram(self.inputImage, 1)
-        hist2 = self.calcHistogram(self.inputImage, 2)
+        hist = self.calcHistogram(self.targetImage, 2)
+        hist1 = self.calcHistogram(self.targetImage, 1)
+        hist2 = self.calcHistogram(self.targetImage, 0)
         index = np.arange(len(hist))
         a = fig.add_subplot(311)
         a.bar(index, hist)
@@ -267,12 +267,12 @@ class App(QMainWindow):
 
         R, C, B = self.inputImage.shape
         K = np.zeros((R, C, B))
-        inputCDF = self.createCDF(self.inputImage, 0)
-        targetCDF = self.createCDF(self.targetImage, 0)
+        inputCDF = self.createCDF(self.inputImage, 2)
+        targetCDF = self.createCDF(self.targetImage, 2)
         inputCDF1 = self.createCDF(self.inputImage, 1)
         targetCDF1 = self.createCDF(self.targetImage, 1)
-        inputCDF2 = self.createCDF(self.inputImage, 2)
-        targetCDF2 = self.createCDF(self.targetImage, 2)
+        inputCDF2 = self.createCDF(self.inputImage, 0)
+        targetCDF2 = self.createCDF(self.targetImage, 0)
 
         #construct LUT
         LUT = self.createLUT(inputCDF,targetCDF)
@@ -282,13 +282,13 @@ class App(QMainWindow):
         print(LUT)
         for row in range(R):
             for column in range(C):
-                self.inputImage[row][column][0] = LUT[self.inputImage[row][column][0]]
+                self.inputImage[row][column][2] = LUT[self.inputImage[row][column][2]]
                 self.inputImage[row][column][1] = LUT1[self.inputImage[row][column][1]]
-                self.inputImage[row][column][2] = LUT2[self.inputImage[row][column][2]]
+                self.inputImage[row][column][0] = LUT2[self.inputImage[row][column][0]]
         K = self.inputImage
-        hist = self.calcHistogram(K, 0)
+        hist = self.calcHistogram(K, 2)
         hist1 = self.calcHistogram(K, 1)
-        hist2 = self.calcHistogram(K, 2)
+        hist2 = self.calcHistogram(K, 0)
         #K = np.uint8(LUT[self.inputImage])
         #his = K
 
@@ -318,9 +318,9 @@ class App(QMainWindow):
         fig = plt.figure(figsize=(5, 5))
         self.box5.layout().addWidget(label)
         self.show()
-        hist = self.calcHistogram(self.inputImage, 0)
-        hist1 = self.calcHistogram(self.inputImage, 1)
-        hist2 = self.calcHistogram(self.inputImage, 2)
+        hist = self.calcHistogram(K, 2)
+        hist1 = self.calcHistogram(K, 1)
+        hist2 = self.calcHistogram(K, 0)
         index = np.arange(len(hist))
         a = fig.add_subplot(311)
         a.bar(index, hist)
