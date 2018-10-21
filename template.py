@@ -93,7 +93,17 @@ class App(QMainWindow):
         label.show()
 
         self.show()
-        
+        hist = self.calcHistogram(inputImage)
+
+        #red_hist = hist[:, 0, 1]
+        plotCanvas = PlotCanvas(hist)
+        #plotCanvas = PlotCanvas(hist)
+        #plotCanvas.plotHistogram(hist)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        #histogram_red = np.zeros([256, 1], dtype=np.uint8)
+        #histogram_green = np.zeros([256, 1], dtype=np.uint8)
+        #histogram_blue = np.zeros([256, 1], dtype=np.uint8)
 
         return inputImage
 
@@ -137,17 +147,35 @@ class App(QMainWindow):
 
     def calcHistogram(self, I):
         # Calculate histogram
+        R, C, B = I.shape
+        # allocate the histogram
+        hist = np.zeros([256])
+        # range through the intensity values
+        for row in range(R):
+            for column in range(C):
+                hist[I[row,column,2]] = hist[I[row,column,2]] + 1
 
         return hist
 
+
 class PlotCanvas(FigureCanvas):
     def __init__(self, hist, parent=None, width=5, height=4, dpi=100):
+        #return NotImplementedError
+        # Init Canvas
+        super(PlotCanvas,self).__init__()
+        #fig = plt.hist(hist)
+        #FigureCanvas.__init__(self)
+        #FigureCanvas.__init__(self, self.figure)
         self.plotHistogram(hist)
 
     def plotHistogram(self, hist):
         #return NotImplementedError
         # Plot histogram
-
+        print(hist)
+        index = np.arange(len(hist))
+        plt.bar(index, hist)
+        # plt.legend(loc='upper right')
+        #plt.show()
         self.draw()
 
 
